@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java для создания игр в AIDE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chatgpt-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #10a37f, #1a7f64);
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+        
+        .progress-section {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #10a37f, #1a7f64);
+            height: 100%;
+            width: 0%;
+            transition: width 0.8s ease;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #10a37f;
+        }
+        
+        .lesson-card {
+            background: rgba(255, 255, 255, 0.95);
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #e2e8f0;
+        }
+        
+        .lesson-card.completed {
+            border-left-color: #10a37f;
+        }
+        
+        .lesson-card.current {
+            border-left-color: #3182ce;
+            transform: scale(1.02);
+        }
+        
+        .lesson-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .lesson-header {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .lesson-info {
+            flex: 1;
+        }
+        
+        .lesson-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .lesson-description {
+            color: #718096;
+            font-size: 0.9em;
+        }
+        
+        .lesson-status {
+            font-size: 1.5em;
+            margin-left: 15px;
+        }
+        
+        .lesson-content {
+            padding: 0 25px 25px;
+            display: none;
+        }
+        
+        .lesson-content.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .content-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #3182ce;
+        }
+        
+        .section-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-icon {
+            margin-right: 10px;
+            font-size: 1.3em;
+        }
+        
+        .code-example {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        .interactive-task {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .task-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn {
+            background: #10a37f;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            background: #0d8f6b;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #718096;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        
+        .quiz-section {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .quiz-question {
+            margin-bottom: 15px;
+        }
+        
+        .quiz-options {
+            margin: 10px 0;
+        }
+        
+        .quiz-option {
+            display: block;
+            margin: 8px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .quiz-option.selected {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .result {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        
+        .result.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 2px solid #38a169;
+        }
+        
+        .result.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 2px solid #e53e3e;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chatgpt-logo">🤖</div>
+            <h1>Java для создания игр в AIDE</h1>
+            <p class="subtitle">Изучаем программирование как дети - просто и весело!</p>
+        </div>
+        
+        <div class="progress-section">
+            <h3>Твой прогресс</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number" id="completedLessons">0</div>
+                    <div>Уроков пройдено</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="totalPoints">0</div>
+                    <div>Очков набрано</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="currentLevel">1</div>
+                    <div>Уроков осталось</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="welcomeScreen">
+            <div class="lesson-card">
+                <div class="lesson-header">
+                    <div class="lesson-info">
+                        <div class="lesson-title">Добро пожаловать в мир создания игр! 🎮</div>
+                        <div class="lesson-description">Привет! Я твой учитель ChatGPT. Вместе мы изучим Java и создадим твою первую Android-игру!</div>
+                    </div>
+                </div>
+                <div class="lesson-content active">
+                    <div class="content-section">
+                        <div class="section-title">
+                            <span class="section-icon">🎯</span>
+                            Что ты изучишь:
+                        </div>
+                        <ul style="margin-left: 20px; color: #4a5568;">
+                            <li>Java основы (переменные, условия, циклы, классы)</li>
+                            <li>Android View и Canvas для рисования</li>
+                            <li>Обработку касаний экрана</li>
+                            <li>Игровой цикл и анимации</li>
+                            <li>Звуки, музыку и столкновения</li>
+                            <li>Создание кнопок и меню</li>
+                            <li>Оптимизацию игры</li>
+                            <li>Публикацию твоей игры</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="content-section">
+                        <div class="section-title">
+                            <span class="section-icon">💡</span>
+                            Как будем учиться:
+                        </div>
+                        <p style="color: #4a5568;">
+                            Каждый урок состоит из простого объяснения, примера кода, интерактивного задания и мини-теста. 
+                            Я буду объяснять всё так, чтобы было понятно даже ребёнку!
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="start-btn" onclick="startCourse()">
+                            🚀 Начать обучение!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="courseContent" class="hidden">
+            <!-- Урок 1: Java Основы -->
+            <div class="lesson-card current" id="lesson1">
+                <div class="lesson-header" onclick="toggleLesson(1)">
+                    <div class="lesson-info">
+                        <div class="lesson-title">Урок 1: Java Основы - Переменные</div>
+                        <div class="lesson-description">Изучаем, как хранить информацию в программе</div>
+                    </div>
+                    <div class="lesson-status">📝</div>
+                </div>
+                <div class="lesson-content" id="content1">
+                    <div class="content-section">
+                        <div class="section-title">
+                            <span class="section-icon">🧠</span>
+                            Что такое переменные?
+                        </div>
+                        <p>Представь, что переменная - это коробочка с названием, в которую мы кладём какую-то информацию!</p>
+                        <p><strong>Типы переменных:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li><code>int</code> - для целых чисел (как возраст: 5, 10, 25)</li>
+                            <li><code>String</code> - для текста (как имя: "Петя", "Маша")</li>
+                            <li><code>boolean</code> - для да/нет (true/false)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="content-section">
+                        <div class="section-title">
+                            <span class="section-icon">💻</span>
+                            Пример кода:
+                        </div>
+                        <div class="code-example">
+// Создаём переменные - как коробочки для хранения
+int возраст = 10;           // Коробочка с числом
+String имя = "Игорь";       // Коробочка с именем  
+boolean играетВИгру = true; // Коробочка с да/нет
+
+// Выводим на экран
+System.out.println("Привет, " + имя);
+System.out.println("Тебе " + возраст + " лет");
+                        </div>
+                    </div>
+                    
+                    <div class="interactive-task">
+                        <div class="section-title">
+                            <span class="section-icon">🎯</span>
+                            Интерактивное задание:
+                        </div>
+                        <p>Создай переменные для героя твоей игры!</p>
+                        <textarea class="task-input" id="task1" placeholder="Напиши код здесь...
+Например:
+int жизни = 100;
+String имяГероя = 'SuperBoy';"></textarea>
+                        <button class="btn" onclick="checkTask(1)">Проверить код</button>
+                        <div id="result1"></div>
+                    </div>
+                    
+                    <div class="quiz-section">
+                        <div class="section-title">
+                            <span class="section-icon">🧩</span>
+                            Мини-тест:
+                        </div>
+                        <div class="quiz-question">
+                            <strong>1. Какой тип переменной нужен для хранения имени игрока?</strong>
+                            <div class="quiz-options">
+                                <label class="quiz-option">
+                                    <input type="radio" name="q1" value="a"> int
+                                </label>
+                                <label class="quiz-option">
+                                    <input type="radio" name="q1" value="b"> String
+                                </label>
+                                <label class="quiz-option">
+                                    <input type="radio" name="q1" value="c"> boolean
+                                </label>
+                            </div>
+                        </div>
+                        <div class="quiz-question">
+                            <strong>2. Что будет в переменной: boolean победа = true?</strong>
+                            <div class="quiz-options">
+                                <label class="quiz-option">
+                                    <input type="radio" name="q2" value="a"> Число
+                                </label>
+                                <label class="quiz-option">
+                                    <input type="radio" name="q2" value="b"> Текст
+                                </label>
+                                <label class="quiz-option">
+                                    <input type="radio" name="q2" value="c"> Да/Нет
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="checkQuiz(1)">Проверить ответы</button>
+                        <div id="quizResult1"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Остальные уроки будут добавлены по мере прохождения -->
+            <div class="lesson-card" id="lesson2">
+                <div class="lesson-header" onclick="toggleLesson(2)">
+                    <div class="lesson-info">
+                        <div class="lesson-title">Урок 2: Условия (if/else)</div>
+                        <div class="lesson-description">Учим программу принимать решения</div>
+                    </div>
+                    <div class="lesson-status">🔒</div>
+                </div>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="showWelcome()">← Назад к началу</button>
+                <button class="btn" onclick="nextLesson()" id="nextBtn" style="display: none;">Следующий урок →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLesson = 1;
+        let completedLessons = 0;
+        let totalPoints = 0;
+        
+        function startCourse() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('courseContent').classList.remove('hidden');
+            toggleLesson(1);
+        }
+        
+        function showWelcome() {
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('courseContent').classList.add('hidden');
+        }
+        
+        function toggleLesson(lessonNum) {
+            const content = document.getElementById(`content${lessonNum}`);
+            const allContent = document.querySelectorAll('.lesson-content');
+            
+            allContent.forEach(c => c.classList.remove('active'));
+            
+            if (lessonNum <= currentLesson) {
+                content.classList.add('active');
+            }
+        }
+        
+        function checkTask(taskNum) {
+            const task = document.getElementById(`task${taskNum}`).value;
+            const result = document.getElementById(`result${taskNum}`);
+            
+            if (task.includes('int') && task.includes('String')) {
+                result.innerHTML = '<div class="result success">🎉 Отлично! Ты правильно создал переменные! +10 очков</div>';
+                totalPoints += 10;
+                updateStats();
+            } else {
+                result.innerHTML = '<div class="result error">🤔 Попробуй ещё раз. Нужно создать переменные int и String</div>';
+            }
+        }
+        
+        function checkQuiz(quizNum) {
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const result = document.getElementById(`quizResult${quizNum}`);
+            
+            let score = 0;
+            if (q1 && q1.value === 'b') score++;
+            if (q2 && q2.value === 'c') score++;
+            
+            if (score === 2) {
+                result.innerHTML = '<div class="result success">🎉 Идеально! Все ответы правильные! +20 очков</div>';
+                totalPoints += 20;
+                completedLessons++;
+                unlockNextLesson();
+            } else {
+                result.innerHTML = `<div class="result error">Правильно ${score} из 2. Попробуй ещё раз!</div>`;
+            }
+            updateStats();
+        }
+        
+        function unlockNextLesson() {
+            document.getElementById('nextBtn').style.display = 'block';
+            const nextLesson = document.getElementById(`lesson${currentLesson + 1}`);
+            if (nextLesson) {
+                nextLesson.querySelector('.lesson-status').textContent = '📝';
+                nextLesson.classList.remove('locked');
+            }
+        }
+        
+        function nextLesson() {
+            currentLesson++;
+            // Здесь будет код для открытия следующего урока
+            alert('Отлично! Скажи "Дальше" чтобы я добавил следующий урок!');
+        }
+        
+        function updateStats() {
+            document.getElementById('completedLessons').textContent = completedLessons;
+            document.getElementById('totalPoints').textContent = totalPoints;
+            document.getElementById('currentLevel').textContent = 8 - completedLessons;
+            
+            const progressPercent = (completedLessons / 8) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+        }
+        
+        // Инициализация
+        updateStats();
+    </script>
+</body>
+</html>
